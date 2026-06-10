@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>2FA 验证码</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236ee7b7'/><stop offset='1' stop-color='%233b82f6'/></linearGradient></defs><path d='M20 28v-6a12 12 0 0 1 24 0v6' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round'/><rect x='14' y='28' width='36' height='28' rx='8' fill='url(%23g)'/><circle cx='32' cy='40' r='4.5' fill='%230a0a0a'/><rect x='30' y='42' width='4' height='9' rx='2' fill='%230a0a0a'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%236ee7b7'/><stop offset='1' stop-color='%233b82f6'/></linearGradient></defs><path d='M20 28v-6a12 12 0 0 1 24 0v6' fill='none' stroke='url(%23g)' stroke-width='5' stroke-linecap='round'/><rect x='14' y='28' width='36' height='28' rx='8' fill='url(%23g)'/><circle cx='32' cy='40' r='4.5' fill='%230a0a0a'/><rect x='30' y='42' width='4' height='9' rx='2' fill='%230a0a0a'/></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e5e5e5;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px;padding-top:18vh}
@@ -152,7 +153,18 @@ function copyCode(){
   });
 }
 
-const p=new URLSearchParams(location.search).get('key');
+// 密钥来源优先级：?key= 查询参数 > URL 路径 /密钥
+function getKeyFromUrl(){
+  const q=new URLSearchParams(location.search).get('key');
+  if(q)return q.trim();
+  // 路径形式：/257LZW...，去掉开头斜杠，取第一段
+  const seg=decodeURIComponent(location.pathname.replace(/^\/+/,'').split('/')[0]||'');
+  const cleaned=seg.replace(/[\s=-]+/g,'');
+  if(/^[A-Za-z2-7]+$/.test(cleaned)&&cleaned.length>=8)return seg;
+  return '';
+}
+
+const p=getKeyFromUrl();
 if(p){input.value=p;input.dispatchEvent(new Event('input'))}
 </script>
 </body>
